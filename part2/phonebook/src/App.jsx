@@ -1,16 +1,75 @@
 import { useState } from 'react'
 
+const Filter = ({filter, onChange}) => {
+  return (
+    <div>
+      filter shown with
+      <input
+        value={filter}
+        onChange={onChange}
+      />
+    </div>
+  )
+}
+
+const PersonForm = ({
+  onSubmit, 
+  newName, 
+  onChangeName, 
+  newNumber, 
+  onChangeNumber
+}) => {
+  return (
+    <form onSubmit={onSubmit}>
+      <div>
+        name: 
+        <input 
+          value={newName}
+          onChange={onChangeName}
+        />
+      </div>
+      <div>
+        number: 
+        <input 
+          value={newNumber}
+          onChange={onChangeNumber}
+        />
+      </div>
+      <div>
+        <button type="submit">
+          add
+        </button>
+      </div>
+    </form>
+  )
+}
+
+const Persons = ({persons, filter}) => {
+  return (
+    <div>
+      {persons.map((person) => {
+        if (person.name.toLowerCase().includes(filter)) {
+          return (
+            <div key={person.id}>
+              {person.name} {person.number}
+            </div>
+          )
+        }
+      })}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456', id: 1 },
     { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
     { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ]) 
+  ])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
-  const [filteredPersons, setFilteredPersons] = useState(persons)
 
   const addEntry = (event) => {
     event.preventDefault()
@@ -40,45 +99,27 @@ const App = () => {
   const handleFilter = (event) => {
     const newFilter = event.target.value
     setFilter(newFilter)
-    setFilteredPersons(persons.filter((person) => {
-      return person.name.toLowerCase().includes(newFilter)
-    }))
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
-      fitler shown with
-      <input 
-        value={filter}
-        onChange={handleFilter}
-      />
+
+      <Filter filter={filter} onChange={handleFilter}/>
+
       <h2>add a new</h2>
-      <form onSubmit={addEntry}>
-        <div>
-          name: 
-          <input 
-            value={newName}
-            onChange={handleNameChange}
-          />
-        </div>
-        <div>
-          number: 
-          <input 
-            value={newNumber}
-            onChange={handleNumberChange}
-          />
-        </div>
-        <div>
-          <button type="submit">
-            add
-          </button>
-        </div>
-      </form>
+
+      <PersonForm
+        onSubmit={addEntry}
+        newName={newName}
+        onChangeName={handleNameChange}
+        newNumber={newNumber}
+        onChangeNumber={handleNumberChange}
+      />
+      
       <h2>Numbers</h2>
-      {filteredPersons.map((person) => (
-        <div key={person.id}>{person.name} {person.number}</div>
-      ))}
+
+      <Persons persons={persons} filter={filter}/>
     </div>
   )
 }
