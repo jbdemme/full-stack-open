@@ -67,17 +67,13 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
-  const hook = () => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
-  }
-
-  useEffect(hook, [])
+  useEffect(() => {
+      axios
+        .get('http://localhost:3001/persons')
+        .then(response => {
+          setPersons(response.data)
+        })
+    }, [])
 
   const addEntry = (event) => {
     event.preventDefault()
@@ -85,12 +81,15 @@ const App = () => {
       alert(`${newName} is already added to phonebook`)
     } else {
       const newPerson = {
-        id: String(persons.length + 1),
         name: newName,
         number: newNumber
       }
 
-      setPersons(persons.concat(newPerson))
+      axios
+        .post('http://localhost:3001/persons', newPerson)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+        })
     }
     setNewName('')
     setNewNumber('')
