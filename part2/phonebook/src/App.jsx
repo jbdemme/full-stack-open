@@ -70,7 +70,7 @@ const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [lastTask, setLastTask] = useState(null)
+  const [message, setMessage] = useState({content: null, type: null})
   const [filter, setFilter] = useState('')
 
   useEffect(() => {
@@ -89,14 +89,27 @@ const App = () => {
         const oldPerson = persons.find(p => p.name === newName)
         const updatedPerson = {...oldPerson, number: newNumber}
         
-
         personService
           .update(oldPerson.id, updatedPerson)
           .then(returnedPerson => {
             setPersons(persons.map(p => (
-              p.id === oldPerson.id ? returnedPerson : p)))
-            setLastTask(`Changed Number of ${returnedPerson.name}`)
-            setTimeout(() => setLastTask(null), 5000)
+              p.id === oldPerson.id ? returnedPerson : p)
+            ))
+            
+            setMessage({
+              content: `Changed Number of ${returnedPerson.name}`,
+              type: 'note'
+            })
+            setTimeout(() => setMessage({content: null, type: null}), 5000)
+          })
+          .catch(error => {
+            if(error.status == 404) {
+              setMessage({
+                content: `Information of ${newName} has already been removed from the server`,
+                type: 'error'
+              })
+              setTimeout(() => setMessage({content: null, type: null}), 5000)
+            }
           })
       }
     } else {
@@ -109,8 +122,12 @@ const App = () => {
         .create(newPerson)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
-          setLastTask(`Added ${returnedPerson.name}`)
-          setTimeout(() => setLastTask(null), 5000)
+
+          setMessage({
+            content: `Added ${returnedPerson.name}`,
+            type: 'note'
+          })
+          setTimeout(() => setMessage({content: null, type: null}), 5000)
         })
     }
     setNewName('')
@@ -145,7 +162,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
-      <Notification message={lastTask}/>
+      <Notification message={message.content} type={message.type}/>
 
       <Filter filter={filter} onChange={handleFilter}/>
 
