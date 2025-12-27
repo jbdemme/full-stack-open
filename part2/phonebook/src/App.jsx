@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Notification from './components/Notification'
 import personService from './services/persons'
 
 const Filter = ({filter, onChange}) => {
@@ -69,6 +70,7 @@ const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [lastTask, setLastTask] = useState(null)
   const [filter, setFilter] = useState('')
 
   useEffect(() => {
@@ -93,6 +95,8 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.map(p => (
               p.id === oldPerson.id ? returnedPerson : p)))
+            setLastTask(`Changed Number of ${returnedPerson.name}`)
+            setTimeout(() => setLastTask(null), 5000)
           })
       }
     } else {
@@ -105,6 +109,8 @@ const App = () => {
         .create(newPerson)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
+          setLastTask(`Added ${returnedPerson.name}`)
+          setTimeout(() => setLastTask(null), 5000)
         })
     }
     setNewName('')
@@ -138,6 +144,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={lastTask}/>
 
       <Filter filter={filter} onChange={handleFilter}/>
 
