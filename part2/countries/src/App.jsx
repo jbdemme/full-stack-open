@@ -2,8 +2,47 @@ import { useState } from 'react'
 import axios from 'axios'
 import { useEffect } from 'react'
 
+const Weather = ({city}) => {
+  const [weather, setWeather] = useState(null)
+  const api_key = import.meta.env.VITE_SOME_KEY
+  const base_url = 'http://api.openweathermap.org'
+
+  useEffect(() => {
+    console.log(`Requesting weather data from: ${base_url}/geo/1.0/direct?q=${city}&appid=${api_key}`)
+    axios
+      .get(`${base_url}/geo/1.0/direct?q=${city}&appid=${api_key}`)
+      .then(geoData => {
+        console.log('geoData of capital:', geoData.data[0])
+        const lat = geoData.data[0].lat
+        const lon = geoData.data[0].lon
+        return (
+          axios
+            .get(`${base_url}/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric`)
+        )
+      })
+      .then(weather => {
+        console.log('Weather:', weather.data)
+        setWeather(weather.data)
+      })
+  }, [city])
+
+  if (!weather) {
+    return (null)
+  } else {
+    return(
+      <div>
+        <h2>Weather in {city}</h2>
+        <div>Temperature {weather.main.temp} Celcius</div>
+        <img src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}/>
+        <div>Wind {weather.wind.speed} m/s</div>
+      </div>
+    )
+  }
+}
+
 const Country = ({country}) => {
-  console.log(country)
+  console.log('CountryData:', country)
+
   return (
     <div>
       <h1>{country.name.common}</h1>
@@ -17,8 +56,10 @@ const Country = ({country}) => {
           <li key={abbreviation}>{language}</li>
         )}
       </ul>
-
+      
       <img src={country.flags.png} alt={country.flags.alt}/>
+
+      <Weather city={country.capital[0]}/>
     </div>
   )
 }
@@ -58,6 +99,7 @@ const App = () => {
       .then(response => {
         setCountryData(response.data)
       })
+      .catch(error => console.error(error))
   }, [])
 
   const handleChange = (event) => {
