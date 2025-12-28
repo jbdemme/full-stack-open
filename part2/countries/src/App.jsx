@@ -3,14 +3,25 @@ import axios from 'axios'
 import { useEffect } from 'react'
 
 
-const SearchResults = ({names}) => {
+const SearchResults = ({names, onClick}) => {
   const [country, setCountry] = useState(null)
-  
+  if (names.length == 0) {
+    return (<></>)
+  }
   
   if (names.length > 10) {
     return (<div>Too many matches, specify another filter</div>)
   } else if (names.length > 1) {
-    return (<>{names.map((name, i) => <div key={i}>{name}</div>)}</>)
+    return (
+      <>
+        {names.map((name, i) => 
+          <div key={i}>
+            {name} &nbsp;
+            <button className={name} onClick={onClick}>Show</button>
+          </div>)
+        }
+      </>
+    )
   } else {
     if (country && country.name.common == names[0]) {
       return (
@@ -42,20 +53,31 @@ const SearchResults = ({names}) => {
 
 const App = () => {
   const [value, setValue] = useState('')
-  const [countries, setCountries] = useState([])
+  const [countryData, setCountryData] = useState([])
+  const [matchingCountries, setMatchingCountries] = useState([])
   const [country, setCountry] = useState(null)
+
+  useEffect(() => {
+    console.log('get country data')
+    axios
+      .get('https://studies.cs.helsinki.fi/restcountries/api/all')
+      .then(response => {
+        setCountryData(response.data)
+      })
+  }, [])
 
   const handleChange = (event) => {
     const query = event.target.value
     setValue(query)
-    axios
-      .get('https://studies.cs.helsinki.fi/restcountries/api/all')
-      .then(response => {
-        const countryNames = response.data.map(c => c.name.common)
-        const matchingNames = countryNames.filter(name =>
-          name.toLowerCase().includes(query.toLowerCase()))
-        setCountries(matchingNames);
-      })
+    const countryNames = countryData.map(c => c.name.common)
+    const matchingNames = countryNames.filter(name =>
+      name.toLowerCase().includes(query.toLowerCase()))
+    setMatchingCountries(matchingNames);
+  }
+
+  const handleClick = (event) => {
+    console.log(event.target.className)
+    setMatchingCountries([event.target.className])
   }
 
   const renderCountry = (name) => {
@@ -72,7 +94,7 @@ const App = () => {
       <form>
         find countries<input value={value} onChange={handleChange}/>
       </form>
-      <SearchResults names={countries}/>
+      <SearchResults names={matchingCountries} onClick={handleClick}/>
     </div>
   )
 }
