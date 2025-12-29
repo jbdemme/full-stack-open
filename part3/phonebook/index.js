@@ -24,6 +24,8 @@ let persons = [
   }
 ]
 
+app.use(express.json())
+
 app.get('/api/persons', (request, response) => {
   response.json(persons)
 })
@@ -58,6 +60,34 @@ app.delete('/api/persons/:id', (request, response) => {
   persons = persons.filter(person => person.id != id)
 
   response.status(204).end()
+})
+
+const generateId = () => {
+  return Math.floor(Math.random() * 1000000)
+}
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+
+  if (!body.name) {
+    return response.status(404).json({
+      error: 'name missing'
+    })
+  } else if (!body.number) {
+    return response.status(404).json({
+      error: 'number missing'
+    })
+  }
+
+  const newPerson = {
+    id: generateId(),
+    name: body.name,
+    number: body.number
+  }
+
+  persons.push(newPerson)
+
+  response.status(201).json(newPerson)
 })
 
 const PORT = 3001
