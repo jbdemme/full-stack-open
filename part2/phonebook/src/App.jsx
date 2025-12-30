@@ -140,7 +140,7 @@ const App = () => {
       personService
         .remove(id)
         .then(returnedPerson => {
-          setPersons(persons.filter(p => p.id != returnedPerson.id))
+          setPersons(persons.filter(p => p.id != id))
         })
     }
   }
