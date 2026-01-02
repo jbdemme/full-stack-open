@@ -74,16 +74,18 @@ app.get('/api/persons/:id', (request, response) => {
   }
 })
 
+//DELETE one specific person by id
 app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  persons = persons.filter(person => person.id != id)
-
-  response.status(204).end()
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => {
+      console.error(error)
+      response.status(400).send({error: 'malformatted id'})
+    })
 })
 
-const generateId = () => {
-  return Math.floor(Math.random() * 1000000)
-}
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
@@ -96,21 +98,16 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({
       error: 'number missing'
     })
-  } else if (persons.some(p => p.name == body.name)) {
-    return response.status(409).json({
-      error: 'name must be unique'
-    })
   }
 
-  const newPerson = {
-    id: generateId(),
+  const newPerson = new Person({
     name: body.name,
     number: body.number
-  }
+  })
 
-  persons.push(newPerson)
-
-  response.status(201).json(newPerson)
+  newPerson.save().then(savedPerson => {
+    response.status(201).json(savedPerson)
+  })
 })
 
 const PORT = process.env.PORT
