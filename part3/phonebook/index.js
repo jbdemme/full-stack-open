@@ -75,7 +75,7 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 //DELETE one specific person by id
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(result => {
       response.status(204).end()
@@ -85,28 +85,57 @@ app.delete('/api/persons/:id', (request, response) => {
     })
 })
 
-
+// Add a new person
 app.post('/api/persons', (request, response) => {
-  const body = request.body
+  const { name, number} = request.body
 
-  if (!body.name) {
+  if (!name) {
     return response.status(400).json({
       error: 'name missing'
     })
-  } else if (!body.number) {
+  } else if (!number) {
     return response.status(400).json({
       error: 'number missing'
     })
   }
 
   const newPerson = new Person({
-    name: body.name,
-    number: body.number
+    name: name,
+    number: number
   })
 
   newPerson.save().then(savedPerson => {
     response.status(201).json(savedPerson)
   })
+})
+
+//Update an existing person
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number} = request.body
+
+  if (!name) {
+    return response.status(400).json({
+      error: 'name missing'
+    })
+  } else if (!number) {
+    return response.status(400).json({
+      error: 'number missing'
+    })
+  }
+
+  Person.findById(request.params.id)
+    .then(person => {
+      if (!person) {
+        return response.status(404).end()
+      }
+
+      person.number = number
+
+      person.save().then(updatedPerson => {
+        return response.json(updatedPerson)
+      })
+    })
+    .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
