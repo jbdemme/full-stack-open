@@ -63,7 +63,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 })
 
 // Add a new person
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const { name, number} = request.body
 
   if (!name) {
@@ -84,6 +84,7 @@ app.post('/api/persons', (request, response) => {
   newPerson.save().then(savedPerson => {
     response.status(201).json(savedPerson)
   })
+  .catch(error => next(error))
 })
 
 //Update an existing person
@@ -119,6 +120,8 @@ const errorHandler = (error, request, response, next) => {
   console.error(error)
   if (error.name == 'CastError') {
     response.status(400).send({error: 'malformatted id'})
+  } else if (error.name == 'ValidationError') {
+    response.status(400).send({error: error.message})
   }
   next(error)
 }

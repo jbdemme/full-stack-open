@@ -129,6 +129,14 @@ const App = () => {
           })
           setTimeout(() => setMessage({content: null, type: null}), 5000)
         })
+        .catch(error => {
+          console.log('ERROR with adding new person')
+          setMessage({
+            content: error.response.data.error,
+            type: 'error'
+          })
+          setTimeout(() => setMessage({content: null, type: null}), 5000)
+        })
     }
     setNewName('')
     setNewNumber('')
