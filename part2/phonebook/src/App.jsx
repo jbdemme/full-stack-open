@@ -51,7 +51,7 @@ const Persons = ({persons, filter, removePerson}) => {
   return (
     <div>
       {persons.map((person) => {
-        if (person.name.toLowerCase().includes(filter)) {
+        if (person.name.toLowerCase().includes(filter.toLowerCase())) {
           return (
             <div key={person.id}>
               {person.name} {person.number}
