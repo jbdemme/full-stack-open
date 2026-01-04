@@ -27,7 +27,7 @@ const personSchema = new mongoose.Schema({
       validator: function(v) {
         return /^\d{2,3}-\d+$/.test(v)
       },
-      message: 'Wrong format for phone number. use 2-3 numbers, a hyphen and then numbers again'
+      message: 'Wrong format for phone number. Use 2-3 numbers, a hyphen and then numbers again'
     },
     required: true
   }
