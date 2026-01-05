@@ -1,0 +1,12 @@
+{
+  "name": "blog_list",
+  "version": "1.0.0",
+  "description": "Allows users to save information about interesting blogs they have stumbled across on the internet.",
+  "license": "MIT",
+  "author": "Jonathan Demme",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
