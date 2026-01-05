@@ -8,7 +8,7 @@ const app = express()
 app.use(express.static('dist'))
 app.use(express.json())
 
-morgan.token('body', function (req, res) {return JSON.stringify(req.body)})
+morgan.token('body', function (req) {return JSON.stringify(req.body)})
 
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body')
@@ -29,13 +29,13 @@ app.get('/info', (request, response) => {
   Person.find({})
     .then(people => {
       response.send(
-            `<div>
-                Phonebook has info for ${people.length} people 
-            </div>
-            <div>
-                ${displayTime}
-            </div>`
-        )
+        `<div>
+            Phonebook has info for ${people.length} people 
+        </div>
+        <div>
+            ${displayTime}
+        </div>`
+      )
     })
 })
 
@@ -54,8 +54,8 @@ app.get('/api/persons/:id', (request, response) => {
 //DELETE one specific person by id
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result => {
-      response.status(204).end()
+    .then(() => {
+      response.statuss(204).end()
     })
     .catch(error => {
       next(error)
@@ -64,7 +64,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 // Add a new person
 app.post('/api/persons', (request, response, next) => {
-  const { name, number} = request.body
+  const { name, number } = request.body
 
   if (!name) {
     return response.status(400).json({
@@ -81,15 +81,16 @@ app.post('/api/persons', (request, response, next) => {
     number: number
   })
 
-  newPerson.save().then(savedPerson => {
-    response.status(201).json(savedPerson)
-  })
-  .catch(error => next(error))
+  newPerson.save()
+    .then(savedPerson => {
+      response.status(201).json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
 //Update an existing person
 app.put('/api/persons/:id', (request, response, next) => {
-  const { name, number} = request.body
+  const { name, number } = request.body
 
   if (!name) {
     return response.status(400).json({
@@ -118,10 +119,10 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 const errorHandler = (error, request, response, next) => {
   console.error(error)
-  if (error.name == 'CastError') {
-    response.status(400).send({error: 'malformatted id'})
-  } else if (error.name == 'ValidationError') {
-    response.status(400).send({error: error.message})
+  if (error.name === 'CastError') {
+    response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    response.status(400).send({ error: error.message })
   }
   next(error)
 }
@@ -130,5 +131,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)    
+  console.log(`Server running on port ${PORT}`)
 })
