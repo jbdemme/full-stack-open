@@ -51,7 +51,7 @@ const Persons = ({persons, filter, removePerson}) => {
   return (
     <div>
       {persons.map((person) => {
-        if (person.name.toLowerCase().includes(filter)) {
+        if (person.name.toLowerCase().includes(filter.toLowerCase())) {
           return (
             <div key={person.id}>
               {person.name} {person.number}
@@ -129,6 +129,14 @@ const App = () => {
           })
           setTimeout(() => setMessage({content: null, type: null}), 5000)
         })
+        .catch(error => {
+          console.log('ERROR with adding new person')
+          setMessage({
+            content: error.response.data.error,
+            type: 'error'
+          })
+          setTimeout(() => setMessage({content: null, type: null}), 5000)
+        })
     }
     setNewName('')
     setNewNumber('')
@@ -140,7 +148,7 @@ const App = () => {
       personService
         .remove(id)
         .then(returnedPerson => {
-          setPersons(persons.filter(p => p.id != returnedPerson.id))
+          setPersons(persons.filter(p => p.id != id))
         })
     }
   }
