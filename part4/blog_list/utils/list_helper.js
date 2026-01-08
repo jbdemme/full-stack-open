@@ -33,7 +33,7 @@ const mostBlogs = (blogs) => {
         if (!(blog.author in blogsWritten)) {
             blogsWritten[blog.author] = 0
         }
-        
+
         blogsWritten[blog.author] ++
 
         if (blogsWritten[bestAuthor] < blogsWritten[blog.author]) {
@@ -47,36 +47,35 @@ const mostBlogs = (blogs) => {
     }
 }
 
-mostBlogs([
-            {
-                _id: "5a422a851b54a676234d17f7",
-                title: "React patterns",
-                author: "Michael Chan",
-                url: "https://reactpatterns.com/",
-                likes: 7,
-                __v: 0
-            },
-            {
-                _id: "5a422aa71b54a676234d17f8",
-                title: "Go To Statement Considered Harmful",
-                author: "Edsger W. Dijkstra",
-                url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-                likes: 5,
-                __v: 0
-            },
-            {
-                _id: "5a422b3a1b54a676234d17f9",
-                title: "Canonical string reduction",
-                author: "Edsger W. Dijkstra",
-                url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-                likes: 12,
-                __v: 0
-            }
-        ])
+const mostLikes = (blogs) => {
+    if (!blogs || blogs.length === 0) {
+        return 0
+    }
+
+    const authorLikes = {}
+    let bestAuthor = blogs[0].author
+    for (blog of blogs) {
+        if (!(blog.author in authorLikes)) {
+            authorLikes[blog.author] = 0
+        }
+
+        authorLikes[blog.author] += blog.likes
+
+        if (authorLikes[bestAuthor] < authorLikes[blog.author]) {
+            bestAuthor = blog.author
+        }
+    }
+
+    return {
+        author: bestAuthor,
+        likes: authorLikes[bestAuthor]
+    }
+}
 
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
