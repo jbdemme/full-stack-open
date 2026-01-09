@@ -72,6 +72,19 @@ test('JSON format and length of all blogs', async () => {
     assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
+test('is unique identifier property named "id"', async () => {
+    const response = await api
+        .get('/api/blogs')
+        .expect(200)
+
+    const blogs = response.body
+
+    assert(blogs.every(blog => 'id' in blog))
+
+    const ids = blogs.map(blog => blog.id)
+    assert.strictEqual(new Set(ids).size, blogs.length)
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
