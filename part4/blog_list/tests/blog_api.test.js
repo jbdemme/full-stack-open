@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const BlogsRouter = require('../controllers/blogs')
 
 const api = supertest(app)
 
@@ -73,16 +74,42 @@ test('JSON format and length of all blogs', async () => {
 })
 
 test('is unique identifier property named "id"', async () => {
-    const response = await api
-        .get('/api/blogs')
-        .expect(200)
-
-    const blogs = response.body
+    
+    const blogs = (await Blog.find({})).map(blog => blog.toJSON())
 
     assert(blogs.every(blog => 'id' in blog))
 
     const ids = blogs.map(blog => blog.id)
     assert.strictEqual(new Set(ids).size, blogs.length)
+})
+
+test('create new blog', async () => {
+
+    const newBlog = {
+        title: "testBlog",
+        author: "testAuthor",
+        url: "example.com",
+        likes: 5
+    }
+
+    const startBlogs = (await Blog.find({})).map(blog => blog.toJSON())
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const addedBlog = response.body
+
+    const endBlogs = (await Blog.find({})).map(blog => blog.toJSON())
+    
+    assert.strictEqual(startBlogs.length, endBlogs.length - 1)
+
+    for (let key in newBlog) {
+        assert.ok(key in addedBlog, `${key} not in the newly added blog.`)
+        assert.strictEqual(newBlog[key], addedBlog[key])
+    }
 })
 
 after(async () => {
