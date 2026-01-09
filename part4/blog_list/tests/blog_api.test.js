@@ -112,6 +112,21 @@ test('create new blog', async () => {
     }
 })
 
+test('likes property defaults to 0', async () => {
+    const newBlogWithoutLikes = {
+        title: "blog without likes",
+        author: "Withoutus Likus",
+        url: "example.com/without_likes"
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlogWithoutLikes)
+        .expect(201)
+    
+    assert.strictEqual(response.body.likes, 0)
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
