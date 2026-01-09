@@ -77,10 +77,10 @@ test('is unique identifier property named "id"', async () => {
     
     const blogs = (await Blog.find({})).map(blog => blog.toJSON())
 
-    assert(blogs.every(blog => 'id' in blog))
+    assert(blogs.every(blog => 'id' in blog), 'not every blog has an id')
 
     const ids = blogs.map(blog => blog.id)
-    assert.strictEqual(new Set(ids).size, blogs.length)
+    assert.strictEqual(new Set(ids).size, blogs.length, 'ids are not unique')
 })
 
 test('create new blog', async () => {
@@ -108,7 +108,8 @@ test('create new blog', async () => {
 
     for (let key in newBlog) {
         assert.ok(key in addedBlog, `${key} not in the newly added blog.`)
-        assert.strictEqual(newBlog[key], addedBlog[key])
+        assert.strictEqual(newBlog[key], addedBlog[key], 
+            `${key} is not right when added`)
     }
 })
 
@@ -125,6 +126,30 @@ test('likes property defaults to 0', async () => {
         .expect(201)
     
     assert.strictEqual(response.body.likes, 0)
+})
+
+test('when title or url is missing, respond with 400 on creation', async () => {
+    const newBlog = {
+        title: "testBlog",
+        author: "testAuthor",
+        url: "example.com",
+        likes: 5
+    }
+
+    const { title, ...blogWithoutTitle } = newBlog
+    const { url, ...blogWithoutUrl } = newBlog
+
+    let response = await api
+        .post('/api/blogs')
+        .send(blogWithoutTitle)
+
+    assert.strictEqual(response.status, 400, 'adding blog without title')
+
+    response = await api
+        .post('/api/blogs')
+        .send(blogWithoutUrl)
+
+    assert.strictEqual(response.status, 400, 'adding blog without url')
 })
 
 after(async () => {
