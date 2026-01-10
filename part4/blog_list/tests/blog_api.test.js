@@ -159,6 +159,23 @@ describe('when creating a new blog', () => {
 
 })
 
+test('delete blog with id', async () => {
+    
+    const startBlogs = await blogsInDB()
+    const blogToDelete = startBlogs[0]
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const endBlogs = await blogsInDB()
+
+    const endIds = endBlogs.map(blog => blog.id)
+    assert.ok(!endIds.includes(blogToDelete.id), 'id of deleted blog still in blogs')
+
+    assert.strictEqual(endBlogs.length, startBlogs.length - 1)
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
