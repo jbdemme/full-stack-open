@@ -160,7 +160,6 @@ describe('when creating a new blog', () => {
 })
 
 test('delete blog with id', async () => {
-    
     const startBlogs = await blogsInDB()
     const blogToDelete = startBlogs[0]
 
@@ -175,6 +174,42 @@ test('delete blog with id', async () => {
 
     assert.strictEqual(endBlogs.length, startBlogs.length - 1)
 })
+
+describe('when updating a new blog', async () => {
+    test('update blog successfuly by id', async () => {
+        const updateBlog = {
+            title: "updatedBlog",
+            author: "updatedAuthor",
+            url: "example.com/update",
+            likes: 66
+        }
+
+        const startBlogs = await blogsInDB()
+        const blogToUpdate = startBlogs[0]
+
+        await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send(updateBlog)
+            .expect(200)
+
+        const endBlogs = await blogsInDB()
+
+        assert.strictEqual(endBlogs.length, startBlogs.length)
+
+        const updatedBlog = endBlogs.find(blog => {
+            return blog.id.toString() === blogToUpdate.id.toString()
+        })
+        
+        for (let key in updateBlog) {
+            assert.strictEqual(updatedBlog[key], updatedBlog[key])
+        }
+    })
+
+    test('update fails (404) when no blog is provided', async () => {
+        await api.put('/api/blogs').expect(404)
+    })
+})
+
 
 after(async () => {
     await mongoose.connection.close()
