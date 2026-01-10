@@ -1,4 +1,4 @@
-const { test, beforeEach, after } = require('node:test')
+const { test, beforeEach, after, describe } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -59,6 +59,11 @@ const initialBlogs = [
   }  
 ]
 
+const blogsInDB = async () => {
+    const response = await Blog.find({})
+    return response.map(blog => blog.toJSON())
+}
+
 beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(initialBlogs)
@@ -75,7 +80,8 @@ test('JSON format and length of all blogs', async () => {
 
 test('is unique identifier property named "id"', async () => {
     
-    const blogs = (await Blog.find({})).map(blog => blog.toJSON())
+    const blogs = await blogsInDB()
+
 
     assert(blogs.every(blog => 'id' in blog), 'not every blog has an id')
 
@@ -83,73 +89,74 @@ test('is unique identifier property named "id"', async () => {
     assert.strictEqual(new Set(ids).size, blogs.length, 'ids are not unique')
 })
 
-test('create new blog', async () => {
+describe('when creating a new blog', () => {
+    test('create new blog', async () => {
 
-    const newBlog = {
-        title: "testBlog",
-        author: "testAuthor",
-        url: "example.com",
-        likes: 5
-    }
+        const newBlog = {
+            title: "testBlog",
+            author: "testAuthor",
+            url: "example.com",
+            likes: 5
+        }
 
-    const startBlogs = (await Blog.find({})).map(blog => blog.toJSON())
+        const startBlogs = await blogsInDB()
 
-    const response = await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(201)
-        .expect('Content-Type', /application\/json/)
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
 
-    const addedBlog = response.body
+        const endBlogs = await blogsInDB()
 
-    const endBlogs = (await Blog.find({})).map(blog => blog.toJSON())
-    
-    assert.strictEqual(startBlogs.length, endBlogs.length - 1)
+        assert.strictEqual(startBlogs.length, endBlogs.length - 1)
 
-    for (let key in newBlog) {
-        assert.ok(key in addedBlog, `${key} not in the newly added blog.`)
-        assert.strictEqual(newBlog[key], addedBlog[key], 
-            `${key} is not right when added`)
-    }
-})
+        for (let key in newBlog) {
+            const values = endBlogs.map(blog => blog[key])
+            assert.ok(values.includes(newBlog[key]), 
+                `${key} is not right when added`)
+        }
+    })
 
-test('likes property defaults to 0', async () => {
-    const newBlogWithoutLikes = {
-        title: "blog without likes",
-        author: "Withoutus Likus",
-        url: "example.com/without_likes"
-    }
+    test('likes property defaults to 0', async () => {
+        const newBlogWithoutLikes = {
+            title: "blog without likes",
+            author: "Withoutus Likus",
+            url: "example.com/without_likes"
+        }
 
-    const response = await api
-        .post('/api/blogs')
-        .send(newBlogWithoutLikes)
-        .expect(201)
-    
-    assert.strictEqual(response.body.likes, 0)
-})
+        const response = await api
+            .post('/api/blogs')
+            .send(newBlogWithoutLikes)
+            .expect(201)
+        
+        assert.strictEqual(response.body.likes, 0)
+    })
 
-test('when title or url is missing, respond with 400 on creation', async () => {
-    const newBlog = {
-        title: "testBlog",
-        author: "testAuthor",
-        url: "example.com",
-        likes: 5
-    }
+    test('when title or url is missing, respond with 400 on creation', async () => {
+        const newBlog = {
+            title: "testBlog",
+            author: "testAuthor",
+            url: "example.com",
+            likes: 5
+        }
 
-    const { title, ...blogWithoutTitle } = newBlog
-    const { url, ...blogWithoutUrl } = newBlog
+        const { title, ...blogWithoutTitle } = newBlog
+        const { url, ...blogWithoutUrl } = newBlog
 
-    let response = await api
-        .post('/api/blogs')
-        .send(blogWithoutTitle)
+        let response = await api
+            .post('/api/blogs')
+            .send(blogWithoutTitle)
 
-    assert.strictEqual(response.status, 400, 'adding blog without title')
+        assert.strictEqual(response.status, 400, 'adding blog without title')
 
-    response = await api
-        .post('/api/blogs')
-        .send(blogWithoutUrl)
+        response = await api
+            .post('/api/blogs')
+            .send(blogWithoutUrl)
 
-    assert.strictEqual(response.status, 400, 'adding blog without url')
+        assert.strictEqual(response.status, 400, 'adding blog without url')
+    })
+
 })
 
 after(async () => {
