@@ -3,5 +3,6 @@ Content-Type: application/json
 
 {
     "url": "pancake-recipes.com",
-    "title": "How to make pancakes"
+    "title": "How to make pancakes",
+    "userId": "6963f3cbb3f358b71ed1b48d"
 }

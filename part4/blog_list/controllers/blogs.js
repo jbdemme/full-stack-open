@@ -1,25 +1,37 @@
 const blogsRouter = require('express').Router()
-const { request } = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 
-blogsRouter.get('/', (request, response) => {
-  Blog.find({}).then((blogs) => {
-    response.json(blogs)
-  })
+blogsRouter.get('/', async (request, response) => {
+  const blogs = await Blog
+    .find({}).populate('user', '-blogs')
+
+  response.json(blogs)
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+  const { title, author, url, likes, userId } = request.body
 
-  try {
-    const savedBlog = await blog.save()
-    response.status(201).json(savedBlog)
-  } catch(err) {
-    if (err.name === 'ValidationError') {
-      response.status(400).end()
-    }
+  const user = await User.findById(userId)
+
+  if (!user) {
+    return response.status(400).json({ errors: ['userId missing or invalid'] })
   }
+
+  const blog = new Blog({
+    title,
+    author,
+    url,
+    likes,
+    user: user._id
+  })
+
+    const savedBlog = await blog.save()
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
+
+    response.status(201).json(savedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
