@@ -2,8 +2,10 @@ const { test, beforeEach, after, describe } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const BlogsRouter = require('../controllers/blogs')
 
 const api = supertest(app)
@@ -56,16 +58,35 @@ const initialBlogs = [
     url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
     likes: 2,
     __v: 0
-  }  
+  },
 ]
+
 
 const blogsInDB = async () => {
     const response = await Blog.find({})
     return response.map(blog => blog.toJSON())
 }
 
+const getUserToken = async () => {
+    const response = await api
+            .post('/api/login')
+            .send({ username: 'root', password: 'secret' })
+    return response.body.token
+}
+
 beforeEach(async () => {
+    await User.deleteMany({})
     await Blog.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('secret', 10)
+    const user = new User({ username: 'root', passwordHash })
+
+    const savedUser = await user.save()
+
+    initialBlogs.forEach(blog => {
+        blog.user = savedUser._id
+    })
+
     await Blog.insertMany(initialBlogs)
 })
 
@@ -90,7 +111,9 @@ test('is unique identifier property named "id"', async () => {
 })
 
 describe('when creating a new blog', () => {
+
     test('create new blog', async () => {
+        const token = await getUserToken()
 
         const newBlog = {
             title: "testBlog",
@@ -103,6 +126,7 @@ describe('when creating a new blog', () => {
 
         await api
             .post('/api/blogs')
+            .set('Authorization', 'Bearer ' + token)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -119,6 +143,8 @@ describe('when creating a new blog', () => {
     })
 
     test('likes property defaults to 0', async () => {
+        const token = await getUserToken()
+
         const newBlogWithoutLikes = {
             title: "blog without likes",
             author: "Withoutus Likus",
@@ -127,6 +153,7 @@ describe('when creating a new blog', () => {
 
         const response = await api
             .post('/api/blogs')
+            .set('Authorization', 'Bearer ' + token)
             .send(newBlogWithoutLikes)
             .expect(201)
         
@@ -134,6 +161,8 @@ describe('when creating a new blog', () => {
     })
 
     test('when title or url is missing, respond with 400 on creation', async () => {
+        const token = await getUserToken()
+
         const newBlog = {
             title: "testBlog",
             author: "testAuthor",
@@ -146,25 +175,45 @@ describe('when creating a new blog', () => {
 
         let response = await api
             .post('/api/blogs')
+            .set('Authorization', 'Bearer ' + token)
             .send(blogWithoutTitle)
 
         assert.strictEqual(response.status, 400, 'adding blog without title')
 
         response = await api
             .post('/api/blogs')
+            .set('Authorization', 'Bearer ' + token)
             .send(blogWithoutUrl)
 
         assert.strictEqual(response.status, 400, 'adding blog without url')
     })
 
+    test('when no token is provided, fails with 401 on creation', async () => {
+        
+        const newBlog = {
+            title: "testBlog",
+            author: "testAuthor",
+            url: "example.com",
+            likes: 5
+        }
+
+        // add the blog without user token
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(401)
+    })
 })
 
 test('delete blog with id', async () => {
+    const token = await getUserToken()
+
     const startBlogs = await blogsInDB()
     const blogToDelete = startBlogs[0]
 
     await api
         .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', 'Bearer ' + token)
         .expect(204)
 
     const endBlogs = await blogsInDB()
