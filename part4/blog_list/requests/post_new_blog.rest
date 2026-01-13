@@ -1,0 +1,8 @@
+POST http://localhost:3003/api/blogs HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpb2xpbml4MyIsImlkIjoiNjk2NGViNWMyOTQ1NDk4NWE2ZjM2YTQ5IiwiaWF0IjoxNzY4MjM0ODk0fQ.U58z6JqQPVGMiQ5D2cDXpYcM5am_TjToPNFsfzyUY1E
+
+{
+    "url": "pancake-recipes.com",
+    "title": "How to make pancakes"
+}

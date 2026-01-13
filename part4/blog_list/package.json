@@ -1,0 +1,24 @@
+{
+  "name": "blog_list",
+  "version": "1.0.0",
+  "description": "Allows users to save information about interesting blogs they have stumbled across on the internet.",
+  "license": "MIT",
+  "author": "Jonathan Demme",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test node --test",
+    "dev": "cross-env NODE_ENV=development node --watch index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.2"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "supertest": "^7.2.2"
+  }
+}
