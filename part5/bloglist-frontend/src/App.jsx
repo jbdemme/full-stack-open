@@ -71,10 +71,23 @@ const App = () => {
   }
 
   const handleLike = async (blog) => {
-    const updatedBlog ={...blog, likes: blog.likes + 1}
+    const updatedBlog = {...blog, likes: blog.likes + 1}
     setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
 
     await blogService.update(updatedBlog)
+  }
+
+  const showDelete = (blog) => {
+    console.log('blog.user', blog.user)
+    console.log('user', user)
+    return blog.user?.username === user.username
+  }
+
+  const handleDelete = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      await blogService.remove(blog.id)
+      setBlogs(blogs.filter(b => b.id !== blog.id))
+    }
   }
 
   const handleLogin = async event => {
@@ -155,7 +168,13 @@ const App = () => {
         {blogs
           .sort((a, b) => b.likes - a.likes)
           .map(blog =>
-          <Blog key={blog.id} blog={blog} handleLike={() => handleLike(blog)}/>
+          <Blog 
+            key={blog.id} 
+            blog={blog} 
+            onLike={() => handleLike(blog)}
+            onDelete={() => handleDelete(blog)}
+            showDelete={showDelete(blog)} 
+          />
         )}
       </div>
     </div>

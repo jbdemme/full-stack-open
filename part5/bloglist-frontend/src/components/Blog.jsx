@@ -1,13 +1,11 @@
 import {useState} from 'react'
 
-const Blog = ({ blog, handleLike }) => {
+const Blog = ({ blog, onLike, onDelete, showDelete }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const changeVisibility = () => {
     setShowDetails(!showDetails)
   }
-
-  
 
   const blogStyle = {
     paddingTop: 10,
@@ -31,9 +29,12 @@ const Blog = ({ blog, handleLike }) => {
         <div>{blog.url}</div>
         <div>
           likes {blog.likes}
-          <button onClick={handleLike}>like</button>
+          <button onClick={onLike}>like</button>
         </div>
         <div>{blog.user?.name}</div>
+        {showDelete && <div>
+          <button onClick={onDelete}>remove</button>
+        </div>}
       </div>
     </div>
   )

@@ -6,7 +6,6 @@ const BlogForm = ({ createBlog }) => {
   const [url, setUrl] = useState('')
 
   const handleSubmit = event => {
-    console.log('addBlog[CreateBlog] called', event)
     event.preventDefault()
 
     createBlog({title, author, url})
