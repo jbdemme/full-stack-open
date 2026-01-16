@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
-import { expect } from 'vitest'
 
 describe('<Blog />', () => {
   test('title and author are visible at first, but url and likes are not', async () => {
@@ -47,5 +46,27 @@ describe('<Blog />', () => {
 
     expect(url).toBeVisible()
     expect(likes).toBeVisible()
+  })
+
+  test('like button double click calls onLike twice', async () => {
+    const blog = {
+      title: 'Test blog title',
+      author: 'Test author',
+      url: 'www.test-blog.com',
+      likes: 6,
+    }
+
+    const mockLike = vi.fn()
+
+    render(<Blog blog={blog} onLike={mockLike} />)
+
+    const user = userEvent.setup()
+    const viewButton = screen.getByRole('button', { name: /view/i })
+    await user.click(viewButton)
+    const likeButton = screen.getByRole('button', { name: /like/i })
+    await user.click(likeButton)
+    await user.click(likeButton)
+
+    expect(mockLike.mock.calls).toHaveLength(2)
   })
 })
