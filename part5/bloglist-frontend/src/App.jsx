@@ -18,10 +18,10 @@ const Togglable = (props) => {
 
   return (
     <div>
-      <div style={{display: visibility ? 'none' : ''}}>
+      <div style={{ display: visibility ? 'none' : '' }}>
         <button onClick={changeVisibility}>{props.buttonLabel}</button>
       </div>
-      <div style={{display: visibility ? '' : 'none'}}>
+      <div style={{ display: visibility ? '' : 'none' }}>
         {props.children}
         <button onClick={changeVisibility}>cancel</button>
       </div>
@@ -41,7 +41,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )        
+    )
   }, [])
 
   useEffect(() => {
@@ -63,23 +63,21 @@ const App = () => {
 
     setMessage({
       content: `a new blog ${newBlog.title} by ${newBlog.author} added`,
-      type: 'info'
+      type: 'info',
     })
     setTimeout(() => {
-      setMessage({content: null, ...message})
+      setMessage({ content: null, ...message })
     }, 3000)
   }
 
   const handleLike = async (blog) => {
-    const updatedBlog = {...blog, likes: blog.likes + 1}
+    const updatedBlog = { ...blog, likes: blog.likes + 1 }
     setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
 
     await blogService.update(updatedBlog)
   }
 
   const showDelete = (blog) => {
-    console.log('blog.user', blog.user)
-    console.log('user', user)
     return blog.user?.username === user.username
   }
 
@@ -93,20 +91,19 @@ const App = () => {
   const handleLogin = async event => {
     event.preventDefault()
     try {
-    const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
 
-    window.localStorage.setItem('loggedUser', JSON.stringify(user))
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
 
-    blogService.setToken(user.token)
-    setUser(user)
+      blogService.setToken(user.token)
+      setUser(user)
     } catch (e) {
-      console.log(e)
       setMessage({
         content: e.response.data.error,
-        type: 'error'
+        type: 'error',
       })
       setTimeout(() => {
-        setMessage({content: null, ...message})
+        setMessage({ content: null, ...message })
       }, 3000)
     }
     setUsername('')
@@ -115,7 +112,6 @@ const App = () => {
 
   const handleLogout = async event => {
     event.preventDefault()
-    console.log('loggin out')
 
     window.localStorage.removeItem('loggedUser')
     setUser(null)
@@ -168,14 +164,14 @@ const App = () => {
         {blogs
           .sort((a, b) => b.likes - a.likes)
           .map(blog =>
-          <Blog 
-            key={blog.id} 
-            blog={blog} 
-            onLike={() => handleLike(blog)}
-            onDelete={() => handleDelete(blog)}
-            showDelete={showDelete(blog)} 
-          />
-        )}
+            <Blog
+              key={blog.id}
+              blog={blog}
+              onLike={() => handleLike(blog)}
+              onDelete={() => handleDelete(blog)}
+              showDelete={showDelete(blog)}
+            />
+          )}
       </div>
     </div>
   )
