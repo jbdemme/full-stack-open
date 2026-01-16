@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
-import { describe, expect } from 'vitest'
+import { expect } from 'vitest'
 
 describe('<Blog />', () => {
   test('title and author are visible at first, but url and likes are not', async () => {
@@ -25,5 +26,26 @@ describe('<Blog />', () => {
     expect(elements.author).toBeVisible()
     expect(elements.url).not.toBeVisible()
     expect(elements.likes).not.toBeVisible()
+  })
+
+  test('url and likes are shown when button is clicked', async () => {
+    const blog = {
+      title: 'Test blog title',
+      author: 'Test author',
+      url: 'www.test-blog.com',
+      likes: 6,
+    }
+
+    render(<Blog blog={blog} />)
+
+    const user = userEvent.setup()
+    const button = screen.getByText('view')
+    await user.click(button)
+
+    const url = screen.getByText(blog.url, { exact: false })
+    const likes = screen.getByText(blog.likes, { exact: false })
+
+    expect(url).toBeVisible()
+    expect(likes).toBeVisible()
   })
 })
