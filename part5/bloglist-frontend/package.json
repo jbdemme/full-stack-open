@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:test": "crossenv NODE_ENV=test node --watch index.js"
   },
   "dependencies": {
     "axios": "^1.9.0",

@@ -1,0 +1,17 @@
+{
+  "name": "bloglist-e2e",
+  "version": "1.0.0",
+  "description": "E2E tests for bloglist",
+  "license": "MIT",
+  "author": "Jonathan Demme",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show:report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.9"
+  }
+}
