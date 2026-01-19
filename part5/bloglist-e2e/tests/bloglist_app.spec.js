@@ -1,4 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { loginWith, createBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -23,51 +24,33 @@ describe('Blog app', () => {
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-      await page.getByLabel('username').fill('asdfghjkl')
-      await page.getByLabel('password').fill('SEKRET')
-
-      await page.getByRole('button', { name: /log in/i }).click()
-
+      loginWith(page, 'asdfghjkl', 'SEKRET')
       await expect(page.getByText('Jonathan logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-      await page.getByLabel('username').fill('asdfghjkl')
-      await page.getByLabel('password').fill('wrong')
-
-      await page.getByRole('button', { name: /log in/i }).click()
-
+      loginWith(page, 'asdfghjkl', 'wrong')
       await expect(page.getByText('invalid username or password')).toBeVisible()
     })
   })
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
-      await page.getByLabel('username').fill('asdfghjkl')
-      await page.getByLabel('password').fill('SEKRET')
-
-      await page.getByRole('button', { name: /log in/i }).click()
+      loginWith(page, 'asdfghjkl', 'SEKRET')
     })
 
     test('a new blog can be created', async ({ page }) => {
-      await page.getByRole('button', { name: /create new blog/i}).click()
-
-      const newBlog = {
-        title: 'E2E Test title',
-        author: 'E2E Test author',
-        url: 'E2E Test url'
-      }
-
-      await page.getByLabel('title').fill(newBlog.title)
-      await page.getByLabel('author').fill(newBlog.author)
-      await page.getByLabel('url').fill(newBlog.url)
-
-      await page.getByRole('button', {name: /create/i}).click()
+      createBlog(page, 'E2E title', 'E2E author', 'E2E URL')
 
       await expect(
-        page.getByText(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+        page.getByText('a new blog E2E title by E2E author added')
       ).toBeVisible()
-      await expect(page.locator('#blogList')).toContainText(newBlog.title)
+
+      await expect(
+        page.locator('#blogList > div')
+          .filter({ hasText: 'E2E title' })
+          .filter({ hasText: 'E2E author' })
+      ).toBeVisible()
     })
   })
 })
