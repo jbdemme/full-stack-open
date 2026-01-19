@@ -40,4 +40,36 @@ describe('Blog app', () => {
       await expect(page.getByText('invalid username or password')).toBeVisible()
     })
   })
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.getByLabel('username').fill('asdfghjkl')
+      await page.getByLabel('password').fill('SEKRET')
+
+      await page.getByRole('button', { name: /log in/i }).click()
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: /create new blog/i}).click()
+
+      const newBlog = {
+        title: 'E2E Test title',
+        author: 'E2E Test author',
+        url: 'E2E Test url'
+      }
+
+      await page.getByLabel('title').fill(newBlog.title)
+      await page.getByLabel('author').fill(newBlog.author)
+      await page.getByLabel('url').fill(newBlog.url)
+
+      await page.getByRole('button', {name: /create/i}).click()
+
+      await expect(
+        page.getByText(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+      ).toBeVisible()
+      await expect(page.locator('#blogList')).toContainText(newBlog.title)
+    })
+  })
 })
+
+//a new blog jason blog by Jason Mandoa added
