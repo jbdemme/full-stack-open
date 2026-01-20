@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, logOut } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -75,8 +75,31 @@ describe('Blog app', () => {
         await blogElement.getByRole('button', { name: /view/i }).click()
         await blogElement.getByRole('button', { name: /delete/i}).click()
 
-        await page.pause()
         await expect(blogElement.getByText(/Blog 1/)).not.toBeVisible()
+      })
+
+      test('delete button not visible when user didnt add the blog',
+        async ({ page, request }) => {
+        await request.post('http://localhost:5173/api/users', {
+          data: {
+            name: 'Stranger',
+            username: 'strangerDanger',
+            password: 'maiskolben',
+          }
+        })
+        await logOut(page)
+        await loginWith(page, 'strangerDanger', 'maiskolben')
+        await createBlog(page, 'Stranger Blog', 'JFK', 'www.stranger.com')
+        await logOut(page)
+        await loginWith(page, 'asdfghjkl', 'SEKRET')
+
+        const blogElement = page
+          .locator('#blogList > div')
+          .filter({ hasText: 'Stranger Blog'})
+        await blogElement.getByRole('button', { name: /view/i }).click()
+        await expect(
+          blogElement.getByRole('button', { name: /delete/i})
+        ).not.toBeVisible()
       })
     })
   })
