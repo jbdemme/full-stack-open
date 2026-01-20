@@ -73,7 +73,7 @@ describe('Blog app', () => {
         page.on('dialog', dialog => dialog.accept())
 
         await blogElement.getByRole('button', { name: /view/i }).click()
-        await blogElement.getByRole('button', { name: /remove/i}).click()
+        await blogElement.getByRole('button', { name: /delete/i}).click()
 
         await page.pause()
         await expect(blogElement.getByText(/Blog 1/)).not.toBeVisible()
