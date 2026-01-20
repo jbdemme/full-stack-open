@@ -52,7 +52,20 @@ describe('Blog app', () => {
           .filter({ hasText: 'E2E author' })
       ).toBeVisible()
     })
+    describe('and several blogs exist', () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(page, 'Blog 1', 'Linus Torvald', 'www.fake1.com')
+        await createBlog(page, 'Blog 2', 'ThePrimagen', 'www.fake2.com')
+      })
+
+      test('a specific blog can be liked', async ({ page }) => {
+        const blogElement = page.getByText(/Blog 1/i).locator('..')
+
+        await blogElement.getByRole('button', { name: /view/i }).click()
+
+        await blogElement.getByRole('button', { name: /like/i }).click()
+        await expect(blogElement.getByText('likes')).toContainText('1')
+      })
+    })
   })
 })
-
-//a new blog jason blog by Jason Mandoa added
