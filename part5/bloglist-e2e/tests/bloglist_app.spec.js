@@ -58,6 +58,7 @@ describe('Blog app', () => {
       beforeEach(async ({ page }) => {
         await createBlog(page, 'Blog 1', 'Linus Torvald', 'www.fake1.com')
         await createBlog(page, 'Blog 2', 'ThePrimagen', 'www.fake2.com')
+        await createBlog(page, 'Blog 3', 'Jim Carmack', 'www.fake3.com')
       })
 
       test('a specific blog can be liked', async ({ page }) => {
@@ -102,6 +103,27 @@ describe('Blog app', () => {
         await expect(
           blogElement.getByRole('button', { name: /delete/i})
         ).not.toBeVisible()
+      })
+
+      test('blogs are arranged by likes descending', async ({ page }) => {
+        await page.pause()
+        const blogElements = await page.locator('#blogList > div').all()
+
+        // open blogToggleable
+        for (let i = 0; i < 3; i++) {
+          await blogElements[i].getByRole('button', { name: /view/ }).click()
+        }
+
+        
+        // blog likes: {Blog1: 2, Blog2: 0, Blog3: 1}
+        await blogElements[0].getByRole('button', { name: /like/ }).click()
+        await blogElements[0].getByRole('button', { name: /like/ }).click()
+        await blogElements[2].getByRole('button', { name: /like/ }).click()
+
+        // => blog order: Blog1, Blog3, Blog2
+        await expect(blogElements[0]).toContainText(/Blog 1/)
+        await expect(blogElements[1]).toContainText(/Blog 3/)
+        await expect(blogElements[2]).toContainText(/Blog 2/)
       })
     })
   })
