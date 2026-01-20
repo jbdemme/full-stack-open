@@ -29,7 +29,9 @@ describe('Blog app', () => {
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-      loginWith(page, 'asdfghjkl', 'wrong')
+      await page.getByLabel('username').fill('asdfghjkl')
+      await page.getByLabel('password').fill('wrong')
+      await page.getByRole('button', { name: /log in/i }).click()
       await expect(page.getByText('invalid username or password')).toBeVisible()
     })
   })
