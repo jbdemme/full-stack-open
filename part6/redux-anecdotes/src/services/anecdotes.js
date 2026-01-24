@@ -21,7 +21,9 @@ const createNew = async (content) => {
 
   const response = await fetch(baseUrl, options)
 
-  console.log(response)
+  if (!response.ok) {
+    throw new Error('failed creating new anecdote')
+  }
 
   return await response.json()
 }
