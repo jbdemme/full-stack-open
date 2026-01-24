@@ -1,6 +1,11 @@
 {
   "anecdotes":[
     {
+      "content": "This DB is really loading. AMAZING!",
+      "id": "13826",
+      "votes": 0
+    },
+    {
       "content": "If it hurts, do it more often",
       "id": "47145",
       "votes": 0
