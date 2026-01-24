@@ -10,4 +10,20 @@ const getAll = async () => {
   return await response.json()
 }
 
-export default { getAll }
+const createNew = async (content) => {
+  const options = {
+    method: 'POST',
+    body: JSON.stringify({content, votes: 0}),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const response = await fetch(baseUrl, options)
+
+  console.log(response)
+
+  return await response.json()
+}
+
+export default { getAll, createNew}
