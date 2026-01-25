@@ -7,3 +7,16 @@ export const getAll = async () => {
   }
   return await response.json()
 }
+
+export const createAnecdote = async (newAnecdote) => {
+  console.log(newAnecdote)
+  const options = {
+    method: 'POST',
+    body: JSON.stringify(newAnecdote),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+  const response = await fetch(baseUrl, options)
+  return await response.json()
+}

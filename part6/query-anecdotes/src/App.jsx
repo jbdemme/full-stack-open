@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
-import { getAll } from './requests'
+import { createAnecdote, getAll } from './requests'
 
 const App = () => {
   const handleVote = (anecdote) => {
@@ -13,6 +13,8 @@ const App = () => {
     queryFn: getAll,
     retry: 1
   })
+
+  
 
   if (result.isLoading) {
     return <div>still loading...</div>
