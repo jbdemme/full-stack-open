@@ -5,7 +5,7 @@ import NotificationContext from "../NotificationContext"
 
 const AnecdoteForm = () => {
 
-  const { messageDispatch }= useContext(NotificationContext)
+  const { setMessage }= useContext(NotificationContext)
   const queryClient = useQueryClient()
 
   const newAnecdoteMutation = useMutation({
@@ -20,13 +20,8 @@ const AnecdoteForm = () => {
     const content = event.target.anecdote.value
     event.target.anecdote.value = ''
     newAnecdoteMutation.mutate({content, votes: 0})
-    messageDispatch({
-      type: 'SET_MESSAGE',
-      payload: `new anecdote created '${content}'`
-    })
+    setMessage(`new anecdote created '${content}'`, 5)
   }
-
-  
 
   return (
     <div>
