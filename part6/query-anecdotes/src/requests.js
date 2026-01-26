@@ -9,7 +9,6 @@ export const getAll = async () => {
 }
 
 export const createAnecdote = async (newAnecdote) => {
-  console.log(newAnecdote)
   const options = {
     method: 'POST',
     body: JSON.stringify(newAnecdote),
@@ -18,5 +17,17 @@ export const createAnecdote = async (newAnecdote) => {
     }
   }
   const response = await fetch(baseUrl, options)
+  return await response.json()
+}
+
+export const updateAnecdote = async (updatedAnecdote) => {
+  const options = {
+    method: 'PUT',
+    body: JSON.stringify(updatedAnecdote),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+  const response = await fetch(`${baseUrl}/${updatedAnecdote.id}`, options)
   return await response.json()
 }
