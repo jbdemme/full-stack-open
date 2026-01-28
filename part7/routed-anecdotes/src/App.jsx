@@ -141,10 +141,17 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+    displayNotification(`a new anecdote ${anecdote.content} created.`, 5)
   }
 
   const anecdoteById = (id) =>
     anecdotes.find(a => a.id === id)
+
+  const displayNotification = (message, time) => {
+    setNotification(message)
+    console.log(message)
+    setTimeout(() => setNotification(''), time * 1000)
+  }
 
   const vote = (id) => {
     const anecdote = anecdoteById(id)
