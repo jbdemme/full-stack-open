@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import {
-  BrowserRouter as Router,
-  Routes, Route, Link
+  Routes, Route, Link, useMatch
 } from 'react-router-dom'
 
 const Menu = () => {
@@ -123,6 +122,11 @@ const App = () => {
 
   const [notification, setNotification] = useState('')
 
+  const match = useMatch('/anecdotes/:id')
+  const anecdote = match
+    ? anecdotes.find(a => a.id === Number(match.params.id))
+    : null
+
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
@@ -144,16 +148,15 @@ const App = () => {
 
   return (
     <div>
-      <Router> 
-        <h1>Software anecdotes</h1>
-        <Menu />
-        <Routes>
-          <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />}/>
-          <Route path="/about" element={<About />}/>
-          <Route path="/create" element={<CreateNew addNew={addNew} />}/>
-        </Routes>
-        <Footer />
-      </Router>
+      <h1>Software anecdotes</h1>
+      <Menu />
+      <Routes>
+        <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />}/>
+        <Route path="/about" element={<About />}/>
+        <Route path="/create" element={<CreateNew addNew={addNew} />}/>
+        <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote}/>}/>
+      </Routes>
+      <Footer />
     </div>
   )
 }
