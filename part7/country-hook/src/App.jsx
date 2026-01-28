@@ -18,7 +18,33 @@ const useField = (type) => {
 const useCountry = (name) => {
   const [country, setCountry] = useState(null)
 
-  useEffect(() => {})
+  useEffect(() => {
+    if (!name) {
+      setCountry(null)
+      return
+    }
+    fetch(`https://studies.cs.helsinki.fi/restcountries/api/name/${name}`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.statusText)
+        }
+
+        return res.json()
+      })
+      .then(data => {
+        setCountry({
+          found: true,
+          data: {
+            ...data,
+            name: data.name.common,
+            flag: data.flags.png
+          }
+        })
+      })
+      .catch(error =>
+        setCountry({ found: false})
+      )
+  }, [name])
 
   return country
 }
